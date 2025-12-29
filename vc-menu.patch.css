@@ -1,0 +1,114 @@
+/* vc-menu.patch.css
+   Purpose:
+   - Keep menu cinematic look
+   - Prevent menu overlay / layout rules from affecting gameplay screen
+   - Normalize background sizing so "huge logo" doesn't happen
+   Safe: scoped to html[data-vc-screen="menu"] and html[data-vc-screen="game"]
+*/
+
+/* ---------- GLOBAL SAFETY: background layer should always fill screen ---------- */
+#vc-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  /* Let engine control the image; we only enforce correct sizing/placement */
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: none;
+}
+
+/* If any ancestor transform/filters existed, don't let them shrink the runtime UI */
+body, #app, #vc-app, #vc-root {
+  transform: none;
+  filter: none;
+}
+
+/* ---------- MENU SCREEN: keep polish but reduce "everything is super dark" ---------- */
+html[data-vc-screen="menu"] #vc-menu {
+  /* Slightly lift menu so it sits better against baked frames */
+  transform: translate3d(0, -10px, 0);
+}
+
+/* If you have a dark overlay (common as :before on body/menu), keep it lighter on menu */
+html[data-vc-screen="menu"] body::before,
+html[data-vc-screen="menu"] #vc-menu::before {
+  opacity: 0.25 !important;
+}
+
+/* If your menu container uses a heavy blur/dim, ease it back a touch */
+html[data-vc-screen="menu"] #vc-menu {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ---------- GAME SCREEN: hard reset anything menu-ish that could break layout ---------- */
+
+/* Make sure menu is truly gone in game mode */
+html[data-vc-screen="game"] #vc-menu {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Kill any menu overlays that might still be dimming gameplay */
+html[data-vc-screen="game"] body::before,
+html[data-vc-screen="game"] body::after,
+html[data-vc-screen="game"] #vc-menu::before,
+html[data-vc-screen="game"] #vc-menu::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Ensure the primary game container can actually use the full screen */
+html[data-vc-screen="game"] body {
+  overflow: hidden;
+}
+
+/* Try to neutralize "tiny left-side UI" caused by inherited max-width or centering rules.
+   These selectors are intentionally broad but only apply in game mode. */
+html[data-vc-screen="game"] #vc-ui,
+html[data-vc-screen="game"] #vc-game,
+html[data-vc-screen="game"] #vc-runtime,
+html[data-vc-screen="game"] #vc-story,
+html[data-vc-screen="game"] #vc-hud,
+html[data-vc-screen="game"] #story,
+html[data-vc-screen="game"] #choices {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+}
+
+/* If the game buttons container is getting squished by menu styling, give it a sane mobile layout */
+html[data-vc-screen="game"] #choices,
+html[data-vc-screen="game"] .choices,
+html[data-vc-screen="game"] .choice-list {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* Make choice buttons readable and tappable on iPhone */
+html[data-vc-screen="game"] #choices button,
+html[data-vc-screen="game"] .choice button,
+html[data-vc-screen="game"] button.choice,
+html[data-vc-screen="game"] .vc-choice {
+  width: 100% !important;
+  min-height: 52px;
+  font-size: 16px;
+  border-radius: 14px;
+}
+
+/* Prevent any accidental "small scale" effect from menu rules */
+html[data-vc-screen="game"] * {
+  transform: none;
+}
