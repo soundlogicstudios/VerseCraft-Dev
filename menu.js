@@ -124,7 +124,7 @@
       await preload(HOME_BG_URL);
       setMenuBg(HOME_BG_URL);
       showMenuBg();
-      setFooterStatus("DEV");
+      setFooterStatus("SPLASH_LOADS");
     } catch (e) {
       console.error("[VCMenu] Splash error:", e);
       console.error("[VCMenu] URL:", HOME_BG_URL);
