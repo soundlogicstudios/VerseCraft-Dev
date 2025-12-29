@@ -51,7 +51,7 @@
   }
 
   // Create a dedicated menu background layer that the engine never touches
-  function ensureMenuBgLayer() {
+  function ensureMenuBgLayer()el.style.background = "linear-gradient(135deg, #ff00ff, #00ffff)"; {
     let el = document.getElementById(IDS.bgMenu);
     if (el) return el;
 
