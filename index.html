@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" data-vc-screen="menu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>VerseCraft Dev</title>
+
+  <!-- Preload the cinematic splash (from VerseCraft-Media) -->
+  <link rel="preload" as="image" href="https://raw.githubusercontent.com/soundlogicstudios/VerseCraft-Media/main/backgrounds/ui/Home_Splash.png" />
+
+  <!-- =========================
+       1) KEEP YOUR EXISTING ENGINE CSS LINKS HERE
+       If your current project already has engine/runtime CSS, paste those <link> tags below.
+       ========================= -->
+  <!-- مثال/Example:
+  <link rel="stylesheet" href="engine.css?v=1">
+  <link rel="stylesheet" href="runtime.css?v=1">
+  -->
+
+  <!-- Cinematic menu CSS (your existing file) -->
+  <link rel="stylesheet" href="vc-menu.css?v=1" />
+
+  <!-- Optional: screen-safety patch (if you created it) -->
+  <link rel="stylesheet" href="patch/vc-screen.patch.css?v=1" />
+
+  <style>
+    /* Minimal, safe baseline so iOS Safari behaves */
+    :root { color-scheme: dark; }
+    html, body { height: 100%; margin: 0; background: #000; overflow: hidden; }
+    body { -webkit-text-size-adjust: 100%; }
+
+    /* Always-present background layer controlled by engine OR menu */
+    #vc-bg {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      z-index: 0;
+    }
+
+    /* Your engine mount/root (leave empty; engine owns it) */
+    #app {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Ensure menu sits above everything when present */
+    #vc-menu {
+      position: relative;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background layer MUST exist at boot (prevents “#vc-bg: NO”) -->
+  <div id="vc-bg"></div>
+
+  <!-- Cinematic Menu MUST exist at boot (prevents “#vc-menu: NO”) -->
+  <!-- IMPORTANT: Replace the inner markup below with your *current* #vc-menu markup exactly. -->
+  <div id="vc-menu" aria-label="VerseCraft Main Menu">
+    <!-- ====== PASTE YOUR EXISTING MENU MARKUP HERE ====== -->
+    <!-- If you already have the full menu HTML in your current index.html, copy/paste it here. -->
+
+    <!-- Minimal fallback (safe to delete once you paste your real menu) -->
+    <div style="padding:16px; color:#fff; font-family:-apple-system,system-ui,sans-serif;">
+      <h1 style="margin:0 0 12px 0; font-size:20px;">VerseCraft</h1>
+      <button data-vc-action="start" style="width:100%; height:52px; border-radius:14px;">Start</button>
+      <div style="height:10px;"></div>
+      <button data-vc-action="load" style="width:100%; height:52px; border-radius:14px;">Load Story</button>
+      <div style="height:10px;"></div>
+      <button data-vc-action="continue" style="width:100%; height:52px; border-radius:14px;">Continue</button>
+    </div>
+  </div>
+
+  <!-- Engine/runtime mount point (DO NOT change id unless your engine expects a different one) -->
+  <div id="app"></div>
+
+  <!-- =========================
+       2) KEEP YOUR EXISTING ENGINE JS SCRIPTS HERE (UNCHANGED ORDER)
+       Copy/paste the exact <script src="..."> tags from your current index.html into this block.
+       Do NOT rename, reorder, or remove them.
+       ========================= -->
+  <!-- مثال/Example:
+  <script defer src="engine.js?v=1"></script>
+  <script defer src="runtime.js?v=1"></script>
+  -->
+
+  <!-- Menu wiring (your patch/menu script) -->
+  <!-- If you used my patch file name: -->
+  <script defer src="patch/menu.patch.js?v=1"></script>
+
+  <!-- Debug overlay (TEMPORARY; remove after it’s working) -->
+  <!-- <script defer src="patch/vc-debug.overlay.js?v=1"></script> -->
+
+  <script>
+    // Force menu screen on first paint (CSS relies on this)
+    document.documentElement.dataset.vcScreen = "menu";
+
+    // Apply the splash immediately (safe: engine can overwrite later)
+    const bg = document.getElementById("vc-bg");
+    if (bg) {
+      bg.style.backgroundImage = 'url("https://raw.githubusercontent.com/soundlogicstudios/VerseCraft-Media/main/backgrounds/ui/Home_Splash.png")';
+      bg.style.backgroundSize = "cover";
+      bg.style.backgroundPosition = "center center";
+      bg.style.backgroundRepeat = "no-repeat";
+    }
+  </script>
+</body>
+</html>
