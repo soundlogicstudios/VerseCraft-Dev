@@ -92,14 +92,10 @@
     }
   </script>
 
-  <script src="app.js"></script>
+    <script src="app.js"></script>
   <script src="menu.js"></script>
 
-<<stable-foundation
-  <!-- must be LAST -->
-<script defer src="patch/menu.patch.js?v=PATCH99"></script>
-  <!-- Patch (wires buttons -> CustomEvent("vc:menu")) -->
-<script defer src="patch/menu.patch.js?v=PATC99"></script>
-main
+  <!-- Patch (must be LAST) -->
+  <script defer src="patch/menu.patch.js?v=PATCH100"></script>
 </body>
 </html>
