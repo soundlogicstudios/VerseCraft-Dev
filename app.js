@@ -1229,6 +1229,7 @@ document.addEventListener("click", async (e) => {
     render();
     toastDialog("Boot Failed", "Could not load stories.json from repo root. Make sure it exists and is valid JSON.");
   }
+stable-foundation
 })();
 /* ================================
    VerseCraft: Stable Public API
@@ -1307,3 +1308,147 @@ document.addEventListener("click", async (e) => {
     });
   } catch (_) {}
 })();
+
+  window.VC = {
+  startNewRun() { /* call existing engine start logic */ },
+  openStoryPicker() { /* call existing picker logic */ },
+  continueRun() { /* call existing continue logic */ }
+};
+})();/* ================================
+   VerseCraft Stable Control Bridge
+   - Adds a single official API: window.VC
+   - Allows menu/UI to control engine without hacks
+   - Also consumes CustomEvent("vc:menu") directly in the engine
+   ================================ */
+
+(function VC_BRIDGE() {
+  // Prevent double-install (hot reload / cache oddities)
+  if (window.VC && window.VC.__installed) return;
+
+  const html = document.documentElement;
+
+  // Helpers to safely call functions if they exist in this scope.
+  function safeCall(fn, ...args) {
+    try {
+      if (typeof fn === "function") return fn(...args);
+    } catch (_) {}
+    return undefined;
+  }
+
+  // Tries to find a refresh/render function commonly used in these builds.
+  function tryRefreshUI() {
+    // If your app.js has any of these, we’ll use them.
+    try {
+      // These names are common; harmless if not present.
+      safeCall(typeof render === "function" ? render : null);
+      safeCall(typeof renderUI === "function" ? renderUI : null);
+      safeCall(typeof updateUI === "function" ? updateUI : null);
+      safeCall(typeof updateBackgroundForState === "function" ? updateBackgroundForState : null);
+      safeCall(typeof updateAll === "function" ? updateAll : null);
+    } catch (_) {}
+  }
+
+  // Minimal, safe mode setter (does not destroy engine state)
+  function setMode(mode) {
+    try {
+      if (typeof state === "object" && state) state.mode = mode;
+    } catch (_) {}
+    html.dataset.vcScreen = mode === "game" ? "game" : "menu";
+    tryRefreshUI();
+  }
+
+  // Attempt to open story picker/list using any internal function that exists.
+  function openPicker() {
+    // If your app.js defines something like these, it will work immediately.
+    const ok =
+      safeCall(typeof openStoryPicker === "function" ? openStoryPicker : null) ??
+      safeCall(typeof showStoryPicker === "function" ? showStoryPicker : null) ??
+      safeCall(typeof openStories === "function" ? openStories : null) ??
+      safeCall(typeof showStories === "function" ? showStories : null) ??
+      safeCall(typeof openLibrary === "function" ? openLibrary : null);
+
+    // If no dedicated picker function exists, at least switch to game mode
+    // (your existing UI should reveal whatever the engine uses for story selection)
+    if (ok === undefined) setMode("game");
+
+    return ok;
+  }
+
+  // Attempt to continue run if engine has a handler.
+  function continueRun() {
+    setMode("game");
+
+    const ok =
+      safeCall(typeof continueGame === "function" ? continueGame : null) ??
+      safeCall(typeof loadLastSave === "function" ? loadLastSave : null) ??
+      safeCall(typeof continueFromSave === "function" ? continueFromSave : null);
+
+    // If no continue hook exists, fall back to opening picker
+    if (ok === undefined) openPicker();
+    return ok;
+  }
+
+  // Start new run: switch to game + open picker (most stable UX)
+  function startNewRun() {
+    setMode("game");
+    // If you later add a real "new game" function internally, it will get used here.
+    const ok =
+      safeCall(typeof newGame === "function" ? newGame : null) ??
+      safeCall(typeof startGame === "function" ? startGame : null) ??
+      safeCall(typeof startNewRun === "function" ? startNewRun : null);
+
+    // Always open the picker after entering game mode (so user can pick a module)
+    // Delay allows UI to paint first on iOS.
+    setTimeout(openPicker, 150);
+
+    return ok;
+  }
+
+  function goToMenu() {
+    setMode("menu");
+  }
+
+  // Public API (the “front door”)
+  window.VC = {
+    __installed: true,
+    setMode,
+    startNewRun,
+    openStoryPicker: openPicker,
+    continueRun,
+    goToMenu,
+  };
+
+  // Consume menu actions directly in the engine (rock-solid wiring)
+  window.addEventListener("vc:menu", (e) => {
+    const action = e?.detail?.action;
+    if (!action) return;
+
+    if (action === "start") return startNewRun();
+    if (action === "load") return openPicker();
+    if (action === "continue") return continueRun();
+    if (action === "menu") return goToMenu();
+  });
+})();
+// --- VerseCraft Engine Bootstrap ---
+window.VC = {
+  start() {
+    if (typeof startGame === "function") {
+      startGame();
+    }
+  },
+
+  load() {
+    if (typeof openStoryPicker === "function") {
+      openStoryPicker();
+    }
+  },
+
+  continue() {
+    if (typeof continueGame === "function") {
+      continueGame();
+    }
+  }
+};
+
+console.log("[VC] Engine installed", window.VC);
+main
