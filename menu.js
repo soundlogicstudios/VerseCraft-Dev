@@ -5,7 +5,7 @@
    - Uses a dedicated menu-only background layer (#vc-bg-menu)
      so app.js can keep controlling #vc-bg without overwriting the menu splash.
 */
-
+alert("MENU.JS EXECUTED");
 (() => {
   "use strict";
 
