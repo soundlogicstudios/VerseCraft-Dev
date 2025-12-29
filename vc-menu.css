@@ -9,6 +9,11 @@
    1) Theme Variables (tweak freely)
 -------------------------------------------- */
 /* Ensure the background layer truly fills the viewport */
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
 #vc-bg {
   position: fixed;
   inset: 0;
