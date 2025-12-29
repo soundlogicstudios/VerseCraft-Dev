@@ -1,1 +1,70 @@
-keep
+/* patch/vc-screen.patch.css
+   Goal:
+   1) Menu styles never bleed into game
+   2) Legacy home UI never appears while cinematic menu is active
+   3) iOS viewport stability
+*/
+
+/* iOS viewport stability */
+:root { --vc-dvh: 100vh; }
+@supports (height: 100dvh) {
+  :root { --vc-dvh: 100dvh; }
+}
+
+html, body {
+  height: var(--vc-dvh);
+}
+
+/* Always keep background layer correct */
+#vc-bg {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: var(--vc-dvh) !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  transform: none !important;
+}
+
+/* ---------- MENU MODE: cinematic menu owns the screen ---------- */
+html[data-vc-screen="menu"] #vc-menu {
+  display: block !important;
+  pointer-events: auto !important;
+}
+
+/* Suppress the legacy home UI in MENU mode (broad but safe) */
+html[data-vc-screen="menu"] button,
+html[data-vc-screen="menu"] a,
+html[data-vc-screen="menu"] [role="button"] {
+  /* do nothing globally — we only suppress specific legacy roots in JS */
+}
+
+/* ---------- GAME MODE: hard-disable the cinematic menu ---------- */
+html[data-vc-screen="game"] #vc-menu {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Kill any menu overlays that might darken gameplay */
+html[data-vc-screen="game"] body::before,
+html[data-vc-screen="game"] body::after,
+html[data-vc-screen="game"] #vc-menu::before,
+html[data-vc-screen="game"] #vc-menu::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Prevent “tiny left UI” caused by accidental transforms/max-width */
+html[data-vc-screen="game"] body,
+html[data-vc-screen="game"] #app,
+html[data-vc-screen="game"] #vc-app,
+html[data-vc-screen="game"] #vc-root {
+  transform: none !important;
+  filter: none !important;
+  max-width: none !important;
+}
