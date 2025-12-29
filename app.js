@@ -1229,4 +1229,9 @@ document.addEventListener("click", async (e) => {
     render();
     toastDialog("Boot Failed", "Could not load stories.json from repo root. Make sure it exists and is valid JSON.");
   }
+  window.VC = {
+  startNewRun() { /* call existing engine start logic */ },
+  openStoryPicker() { /* call existing picker logic */ },
+  continueRun() { /* call existing continue logic */ }
+};
 })();
