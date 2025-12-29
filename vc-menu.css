@@ -8,6 +8,14 @@
 /* --------------------------------------------
    1) Theme Variables (tweak freely)
 -------------------------------------------- */
+/* Ensure the background layer truly fills the viewport */
+#vc-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
 :root {
   --vc-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   --vc-radius-lg: 18px;
