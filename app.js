@@ -1230,3 +1230,80 @@ document.addEventListener("click", async (e) => {
     toastDialog("Boot Failed", "Could not load stories.json from repo root. Make sure it exists and is valid JSON.");
   }
 })();
+/* ================================
+   VerseCraft: Stable Public API
+   This makes the engine controllable from menu / patches.
+   ================================ */
+(function VC_PUBLIC_API() {
+  try {
+    // Don’t double-install
+    if (window.VC && window.VC.__installed) return;
+
+    // Helper: try a list of function names and call the first one that exists.
+    function callFirst(names, ...args) {
+      for (const name of names) {
+        try {
+          const fn = (typeof name === "function") ? name : (typeof window[name] === "function" ? window[name] : (typeof globalThis[name] === "function" ? globalThis[name] : null));
+          if (typeof fn === "function") return fn(...args);
+        } catch (_) {}
+      }
+      return undefined;
+    }
+
+    window.VC = {
+      __installed: true,
+
+      setMode(mode) {
+        try {
+          if (typeof state === "object" && state) state.mode = mode;
+        } catch (_) {}
+        document.documentElement.dataset.vcScreen = mode === "game" ? "game" : "menu";
+
+        // try common refresh hooks if they exist
+        callFirst(["renderUI", "render", "updateUI", "updateAll"]);
+        callFirst(["updateBackgroundForState"]);
+      },
+
+      startNewRun() {
+        this.setMode("game");
+
+        // Prefer explicit new-game hooks if your engine has them
+        callFirst(["newGame", "startNewRun", "startGame"]);
+
+        // Then open picker/list (most stable UX)
+        setTimeout(() => this.openStoryPicker(), 120);
+      },
+
+      openStoryPicker() {
+        this.setMode("game");
+
+        // Try common picker names (only calls if they exist)
+        const r = callFirst(["openStoryPicker", "showStoryPicker", "openStories", "showStories", "openLibrary", "showLibrary"]);
+
+        // If nothing matched, do nothing — menu patch will keep HUD visible
+        return r;
+      },
+
+      continueRun() {
+        this.setMode("game");
+
+        const r = callFirst(["continueGame", "loadLastSave", "continueFromSave", "vcContinue"]);
+
+        // If no continue hook, open picker
+        if (r === undefined) setTimeout(() => this.openStoryPicker(), 120);
+        return r;
+      },
+    };
+
+    // Also accept vc:menu events
+    window.addEventListener("vc:menu", (e) => {
+      const action = e?.detail?.action;
+      if (!action) return;
+
+      if (action === "start") window.VC.startNewRun();
+      if (action === "load") window.VC.openStoryPicker();
+      if (action === "continue") window.VC.continueRun();
+      if (action === "menu") window.VC.setMode("menu");
+    });
+  } catch (_) {}
+})();
