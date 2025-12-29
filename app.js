@@ -1349,3 +1349,25 @@ document.addEventListener("click", async (e) => {
     if (action === "menu") return goToMenu();
   });
 })();
+// --- VerseCraft Engine Bootstrap ---
+window.VC = {
+  start() {
+    if (typeof startGame === "function") {
+      startGame();
+    }
+  },
+
+  load() {
+    if (typeof openStoryPicker === "function") {
+      openStoryPicker();
+    }
+  },
+
+  continue() {
+    if (typeof continueGame === "function") {
+      continueGame();
+    }
+  }
+};
+
+console.log("[VC] Engine installed", window.VC);
