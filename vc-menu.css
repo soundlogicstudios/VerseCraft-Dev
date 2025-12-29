@@ -1,0 +1,473 @@
+/* vc-menu.css
+   VerseCraft Cinematic Main Menu (Mobile-First)
+   - No frameworks
+   - Uses existing #vc-bg layer
+   - Provides premium layout, overlays, motion, and button hierarchy
+*/
+
+/* --------------------------------------------
+   1) Theme Variables (tweak freely)
+-------------------------------------------- */
+:root {
+  --vc-font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  --vc-radius-lg: 18px;
+  --vc-radius-md: 14px;
+  --vc-radius-sm: 12px;
+
+  --vc-shadow-lg: 0 18px 60px rgba(0,0,0,.50);
+  --vc-shadow-md: 0 10px 30px rgba(0,0,0,.40);
+  --vc-shadow-sm: 0 6px 18px rgba(0,0,0,.30);
+
+  --vc-text: rgba(255,255,255,.92);
+  --vc-text-dim: rgba(255,255,255,.70);
+  --vc-text-faint: rgba(255,255,255,.50);
+
+  --vc-panel: rgba(10, 12, 16, .42);
+  --vc-panel-strong: rgba(10, 12, 16, .62);
+  --vc-stroke: rgba(255,255,255,.12);
+  --vc-stroke-strong: rgba(255,255,255,.18);
+
+  --vc-accent: rgba(170, 220, 255, .95);
+  --vc-accent-soft: rgba(170, 220, 255, .22);
+  --vc-danger: rgba(255, 120, 120, .95);
+
+  --vc-safe-top: env(safe-area-inset-top, 0px);
+  --vc-safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --vc-max-width: 520px;
+
+  /* Menu backdrop “cinema” tuning */
+  --vc-bg-dim: .62;        /* overall brightness */
+  --vc-bg-blur: 10px;      /* blur for readability */
+  --vc-bg-scale: 1.06;     /* slight zoom for cinematic feel */
+
+  /* Overlay tuning */
+  --vc-overlay-top: rgba(0,0,0,.55);
+  --vc-overlay-mid: rgba(0,0,0,.30);
+  --vc-overlay-bot: rgba(0,0,0,.70);
+
+  /* Motion */
+  --vc-fade-ms: 320ms;
+  --vc-drift-ms: 12000ms;
+}
+
+/* --------------------------------------------
+   2) Global Base (safe, minimal)
+-------------------------------------------- */
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vc-font);
+  color: var(--vc-text);
+  background: #05060a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Optional: keep tap highlights subtle on iOS */
+:where(button, a, input, textarea) {
+  -webkit-tap-highlight-color: rgba(255,255,255,.12);
+}
+
+/* --------------------------------------------
+   3) Background Layer (#vc-bg) Cinematic Treatment
+   Assumes you already have #vc-bg in the DOM.
+-------------------------------------------- */
+#vc-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+
+  /* Your JS likely sets background-image on this element.
+     We only control presentation. */
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  /* cinematic look */
+  transform: scale(var(--vc-bg-scale));
+  filter: blur(var(--vc-bg-blur)) brightness(var(--vc-bg-dim));
+  transition:
+    opacity var(--vc-fade-ms) ease,
+    filter var(--vc-fade-ms) ease,
+    transform var(--vc-fade-ms) ease;
+
+  will-change: transform, filter, opacity;
+}
+
+/* Soft “drift” motion for menu only (CSS parallax vibe) */
+html[data-vc-screen="menu"] #vc-bg {
+  animation: vcBgDrift var(--vc-drift-ms) ease-in-out infinite alternate;
+}
+
+@keyframes vcBgDrift {
+  0%   { transform: scale(calc(var(--vc-bg-scale) + 0.01)) translate3d(0px, 0px, 0px); }
+  100% { transform: scale(calc(var(--vc-bg-scale) + 0.03)) translate3d(8px, -10px, 0px); }
+}
+
+/* When in game, keep it steady (less “menu trailer” feeling) */
+html[data-vc-screen="game"] #vc-bg {
+  animation: none;
+  filter: blur(0px) brightness(.92);
+  transform: scale(1.00);
+}
+
+/* --------------------------------------------
+   4) Global Overlays (vignette + gradient)
+   We attach overlays to body via pseudo-elements so you
+   don’t need extra DOM nodes.
+-------------------------------------------- */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Primary readability gradient */
+body::before {
+  background:
+    linear-gradient(
+      to bottom,
+      var(--vc-overlay-top) 0%,
+      var(--vc-overlay-mid) 36%,
+      var(--vc-overlay-bot) 100%
+    );
+  opacity: 1;
+  transition: opacity var(--vc-fade-ms) ease;
+}
+
+/* Vignette edges */
+body::after {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,0.10) 0%,
+      rgba(0,0,0,0.55) 70%,
+      rgba(0,0,0,0.82) 100%
+    );
+  opacity: .95;
+  transition: opacity var(--vc-fade-ms) ease;
+}
+
+/* In-game: tone overlays down so story art pops more */
+html[data-vc-screen="game"] body::before { opacity: .42; }
+html[data-vc-screen="game"] body::after  { opacity: .60; }
+
+/* --------------------------------------------
+   5) Menu Shell Layout
+   #vc-menu sits above overlays and background.
+-------------------------------------------- */
+#vc-menu {
+  position: relative;
+  z-index: 2;
+
+  min-height: 100svh; /* modern mobile */
+  min-height: 100vh;  /* fallback */
+
+  display: grid;
+  place-items: center;
+
+  padding:
+    calc(18px + var(--vc-safe-top))
+    16px
+    calc(18px + var(--vc-safe-bottom));
+
+  /* smooth entrance */
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity var(--vc-fade-ms) ease,
+    transform var(--vc-fade-ms) ease;
+}
+
+/* If you hide menu by toggling [hidden] or a class */
+#vc-menu[hidden] {
+  display: none !important;
+}
+
+/* Optional: when you want a soft fade-out before hiding */
+#vc-menu.vc-hide {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  pointer-events: none;
+}
+
+/* The centered content panel */
+.vc-menu__panel {
+  width: min(100%, var(--vc-max-width));
+  border-radius: var(--vc-radius-lg);
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,.08),
+    rgba(255,255,255,.02)
+  );
+  border: 1px solid var(--vc-stroke);
+  box-shadow: var(--vc-shadow-lg);
+
+  /* glass feel */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  overflow: hidden;
+}
+
+/* Panel inner padding */
+.vc-menu__inner {
+  padding: 20px 18px 16px;
+}
+
+/* --------------------------------------------
+   6) Brand / Title Hierarchy
+-------------------------------------------- */
+.vc-menu__brand {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px 10px;
+}
+
+.vc-menu__logoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vc-menu__title {
+  font-size: 28px;
+  letter-spacing: .6px;
+  line-height: 1.05;
+  margin: 0;
+  text-transform: none;
+}
+
+.vc-menu__subtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--vc-text-dim);
+}
+
+.vc-menu__badge {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--vc-stroke-strong);
+  background: rgba(0,0,0,.18);
+  color: var(--vc-text);
+  white-space: nowrap;
+}
+
+/* Divider line inside panel */
+.vc-menu__divider {
+  height: 1px;
+  background: rgba(255,255,255,.10);
+}
+
+/* --------------------------------------------
+   7) Action Buttons (Primary/Secondary)
+-------------------------------------------- */
+.vc-menu__actions {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px 18px;
+}
+
+/* Shared button style */
+.vc-btn {
+  width: 100%;
+  appearance: none;
+  border: 1px solid var(--vc-stroke);
+  background: rgba(0,0,0,.22);
+  color: var(--vc-text);
+
+  border-radius: var(--vc-radius-md);
+  padding: 14px 14px;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+
+  text-align: left;
+  cursor: pointer;
+
+  box-shadow: var(--vc-shadow-sm);
+  transition:
+    transform 120ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+/* Title + hint inside button */
+.vc-btn__label {
+  display: grid;
+  gap: 2px;
+}
+
+.vc-btn__title {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  letter-spacing: .2px;
+}
+
+.vc-btn__hint {
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--vc-text-dim);
+}
+
+/* Right-side chevron / icon */
+.vc-btn__meta {
+  font-size: 14px;
+  color: var(--vc-text-dim);
+  opacity: .9;
+}
+
+/* Primary action */
+.vc-btn.vc-primary {
+  border-color: rgba(255,255,255,.22);
+  background:
+    linear-gradient( to bottom, rgba(170,220,255,.22), rgba(0,0,0,.28) );
+}
+
+.vc-btn.vc-primary .vc-btn__meta {
+  color: rgba(255,255,255,.85);
+}
+
+/* Secondary action */
+.vc-btn.vc-secondary {
+  background: rgba(0,0,0,.18);
+}
+
+/* Disabled / “Continue” greyed out */
+.vc-btn:disabled,
+.vc-btn.vc-disabled {
+  opacity: .55;
+  filter: saturate(.75);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none;
+}
+
+/* Press/hover (mobile press is the big one) */
+.vc-btn:not(:disabled):active {
+  transform: translate3d(0, 1px, 0) scale(.99);
+  background: rgba(0,0,0,.30);
+  border-color: rgba(255,255,255,.22);
+}
+
+/* Desktop hover refinement */
+@media (hover:hover) and (pointer:fine) {
+  .vc-btn:not(:disabled):hover {
+    transform: translate3d(0, -1px, 0);
+    border-color: rgba(255,255,255,.22);
+    background: rgba(0,0,0,.28);
+    box-shadow: var(--vc-shadow-md);
+  }
+}
+
+/* --------------------------------------------
+   8) Footer Links / Version Row
+-------------------------------------------- */
+.vc-menu__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px 16px;
+  color: var(--vc-text-faint);
+  font-size: 12px;
+}
+
+.vc-menu__linkRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vc-menu__link {
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.14);
+  color: var(--vc-text-dim);
+}
+
+.vc-menu__link:active {
+  transform: scale(.99);
+}
+
+.vc-menu__version {
+  white-space: nowrap;
+  opacity: .85;
+}
+
+/* --------------------------------------------
+   9) “Menu Background Card” Optional
+   If you want a title plate floating above background,
+   reuse this component later for story selection.
+-------------------------------------------- */
+.vc-plate {
+  width: min(100%, var(--vc-max-width));
+  border-radius: var(--vc-radius-lg);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.20);
+  box-shadow: var(--vc-shadow-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.vc-plate__inner {
+  padding: 14px 16px;
+}
+
+/* --------------------------------------------
+   10) Responsive Tweaks (very small devices)
+-------------------------------------------- */
+@media (max-height: 650px) {
+  .vc-menu__title {
+    font-size: 24px;
+  }
+
+  .vc-btn {
+    padding: 12px 12px;
+  }
+
+  .vc-menu__actions {
+    gap: 8px;
+  }
+}
+
+/* --------------------------------------------
+   11) Reduced Motion
+-------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  #vc-bg { animation: none !important; }
+  #vc-menu, .vc-btn, body::before, body::after {
+    transition: none !important;
+  }
+}
