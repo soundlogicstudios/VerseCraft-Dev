@@ -1449,6 +1449,33 @@ window.VC = {
     }
   }
 };
+// ===============================
+// VerseCraft Engine Target
+// ===============================
+window.VC_ENGINE = {
+  start() {
+    if (typeof startGame === "function") {
+      startGame();
+      return true;
+    }
+    return false;
+  },
 
+  load() {
+    if (typeof openStoryPicker === "function") {
+      openStoryPicker();
+      return true;
+    }
+    return false;
+  },
+
+  continue() {
+    if (typeof continueGame === "function") {
+      continueGame();
+      return true;
+    }
+    return false;
+  }
+};
 console.log("[VC] Engine installed", window.VC);
 main
