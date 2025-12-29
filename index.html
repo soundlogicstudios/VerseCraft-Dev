@@ -11,7 +11,62 @@
   <link rel="stylesheet" href="styles.css?v=1305" />
 </head>
 <body>
-  <div id="vc-bg"></div>
+  <div id="vc-bg"></div><!-- VerseCraft Main Menu -->
+<div id="vc-menu">
+  <div class="vc-menu__panel">
+    <div class="vc-menu__brand">
+      <div class="vc-menu__logoRow">
+        <h1 class="vc-menu__title">VerseCraft</h1>
+        <span class="vc-menu__badge">Demo</span>
+      </div>
+      <p class="vc-menu__subtitle">Your choices. Your RPG. Your adventure.</p>
+    </div>
+
+    <div class="vc-menu__divider"></div>
+
+    <div class="vc-menu__actions">
+      <button class="vc-btn vc-primary" data-vc-action="start" type="button">
+        <span class="vc-btn__label">
+          <span class="vc-btn__title">Start</span>
+          <span class="vc-btn__hint">Begin a new run</span>
+        </span>
+        <span class="vc-btn__meta">›</span>
+      </button>
+
+      <button class="vc-btn vc-secondary" data-vc-action="continue" type="button" disabled>
+        <span class="vc-btn__label">
+          <span class="vc-btn__title">Continue</span>
+          <span class="vc-btn__hint">Resume your last save</span>
+        </span>
+        <span class="vc-btn__meta">›</span>
+      </button>
+
+      <button class="vc-btn vc-secondary" data-vc-action="load" type="button">
+        <span class="vc-btn__label">
+          <span class="vc-btn__title">Load Story</span>
+          <span class="vc-btn__hint">Pick a module to play</span>
+        </span>
+        <span class="vc-btn__meta">›</span>
+      </button>
+
+      <button class="vc-btn vc-secondary" data-vc-action="settings" type="button">
+        <span class="vc-btn__label">
+          <span class="vc-btn__title">Settings</span>
+          <span class="vc-btn__hint">Audio, text size, accessibility</span>
+        </span>
+        <span class="vc-btn__meta">›</span>
+      </button>
+    </div>
+
+    <div class="vc-menu__footer">
+      <div class="vc-menu__linkRow">
+        <a class="vc-menu__link" href="#" onclick="return false;">Credits</a>
+        <a class="vc-menu__link" href="#" onclick="return false;">Support</a>
+      </div>
+      <div class="vc-menu__version">v0.1</div>
+    </div>
+  </div>
+</div>
   <div id="app"></div>
   <script src="app.js?v=1305" defer></script>
 </body>
