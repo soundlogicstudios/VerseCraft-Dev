@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-vc-screen="menu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>VerseCraft Dev</title>
+
+  <link rel="stylesheet" href="styles.css?v=1" />
+
+  <style>
+    html, body { margin:0; padding:0; background:#000; }
+
+    /* Background layer */
+    #vc-bg{
+      position: fixed;
+      inset: 0;
+      background: #000 center/cover no-repeat;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Overlay menu */
+    #vc-menu{
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    html[data-vc-screen="game"] #vc-menu{
+      display:none !important;
+      pointer-events:none !important;
+    }
+
+    .vc-panel{
+      width:min(360px, 92vw);
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      align-items:stretch;
+      text-align:center;
+      font-family:-apple-system,system-ui,sans-serif;
+    }
+
+    .vc-title{
+      font-size:44px;
+      font-weight:800;
+      color:#fff;
+      letter-spacing:.2px;
+      margin-bottom:8px;
+      text-shadow: 0 6px 20px rgba(0,0,0,.55);
+    }
+
+    .vc-btn{
+      height:64px;
+      border-radius:22px;
+      border: 0;
+      background: rgba(255,255,255,.85);
+      color:#0a4ea6;
+      font-size:18px;
+      font-weight:700;
+    }
+    .vc-btn:active{ transform: scale(.99); }
+  </style>
+</head>
+
+<body>
+  <div id="vc-bg"></div>
+
+  <!-- THIS is the overlay menu the patch expects -->
+  <div id="vc-menu" aria-label="VerseCraft Main Menu">
+    <div class="vc-panel">
+      <div class="vc-title">VerseCraft</div>
+      <button class="vc-btn" data-vc-action="start">Start</button>
+      <button class="vc-btn" data-vc-action="load">Load Story</button>
+      <button class="vc-btn" data-vc-action="continue">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    // Always start in menu mode
+    document.documentElement.dataset.vcScreen = "menu";
+    const bg = document.getElementById("vc-bg");
+    if (bg) {
+      bg.style.backgroundImage =
+        'url("https://raw.githubusercontent.com/soundlogicstudios/VerseCraft-Media/main/backgrounds/ui/Home_Splash.png")';
+    }
+  </script>
+
+  <script src="app.js"></script>
+  <script src="menu.js"></script>
+
+  <!-- must be LAST -->
+  <script defer src="patch/menu.patch.js?v=PATCH4"></script>
+</body>
+</html>
